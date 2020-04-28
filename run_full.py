@@ -246,6 +246,8 @@ for image in ready_images:
     if w < minWidth:
         minWidth = w
 
+if(minHeight * 6 < minWidth):
+    minHeight = int(minWidth / 6) #Zapobiega przeskalowaniu wszystkich do bardzo małego prostokąta jeżeli któraś figura była prostokątem i usuwanie białego bloku wycięło praktycznie całość
 resized_images = []
 for index, image in enumerate(ready_images):
     h,w = image.shape
