@@ -195,7 +195,7 @@ for image, contursMap in zip(images, contursMaps):
     angles = []
     lines = cv2.HoughLinesP(contursMap, 1, math.pi / 180.0, 50, minLineLength=50, maxLineGap=5)
     for x1, y1, x2, y2 in lines[0]:
-        cv2.line(contursMap, (x1, y1), (x2, y2), (255, 0, 0), 3)
+        #cv2.line(contursMap, (x1, y1), (x2, y2), (255, 0, 0), 3) <- not needed
         angle = math.degrees(math.atan2(y2 - y1, x2 - x1))
         angles.append(angle)
         
@@ -230,10 +230,13 @@ for image, contursMap in zip(images, contursMaps):
     # axs[math.floor(index / 2),index % 2].imshow(ready_images[-1], cmap='gray', vmin=0, vmax=255) 
     # index += 1
 
-ready_images = [] 
+imgs_fliped = [] 
 for image in imgs_rotated:
-    ready_images.append( cut_white_block( check_orient( cut_background(image) ) ) )  # check_orient + cut_background + cut_white_block w jednej pętli
+    imgs_fliped.append(( check_orient( cut_background(image) ) ) )  # check_orient + cut_background +  w jednej pętli
 
+ready_images = []
+for image in imgs_fliped:
+    ready_images.append(cut_white_block(image))
 
 minHeight, minWidth = ready_images[0].shape
 for image in ready_images:
@@ -244,8 +247,13 @@ for image in ready_images:
         minWidth = w
 
 resized_images = []
-for image in ready_images:
-    resized_images.append(cv2.resize(image, dsize=(minWidth, minHeight), interpolation=cv2.INTER_CUBIC))
+for index, image in enumerate(ready_images):
+    h,w = image.shape
+    
+    if h >= minHeight and w >= minWidth:
+        resized_images.append(cv2.resize(image, dsize=(minWidth, minHeight), interpolation=cv2.INTER_CUBIC))
+    else:
+        resized_images.append(cv2.resize(imgs_fliped[index], dsize=(minWidth, minHeight), interpolation=cv2.INTER_CUBIC))
 
 # RYSOWANIE
 # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
