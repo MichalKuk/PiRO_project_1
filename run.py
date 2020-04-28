@@ -114,8 +114,6 @@ def calculate_similarity(image1, image2):
 if __name__ == "__main__":
     images = []
 
-    # path = sys.argv[1]
-    # print(path)
     # path = os.path.abspath(sys.argv[1])
     # print(path)
 
@@ -193,30 +191,6 @@ if __name__ == "__main__":
     # plt.show()
 
 
-    # # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
-    # # index = 0
-    # # imgs_fliped = []
-    # # for image in imgs_rotated:
-    # #     imgs_fliped.append(check_orient(image))   
-    #     # axs[math.floor(index / 2),index % 2].imshow(imgs_fliped[-1], cmap='gray', vmin=0, vmax=255) 
-    #     # index += 1 
-
-    # # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
-    # # index = 0
-    # # cutted_images = []
-    # # for image in imgs_fliped:
-    # #     cutted_images.append(cut_background(image))
-    #     # axs[math.floor(index / 2),index % 2].imshow(cutted_images[-1], cmap='gray', vmin=0, vmax=255) 
-    #     # index += 1 
-
-    # # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
-    # # index = 0
-    # # ready_images = []
-    # # for image in cut_images:
-    # #     ready_images.append(cut_white_block(image))     
-    #     # axs[math.floor(index / 2),index % 2].imshow(ready_images[-1], cmap='gray', vmin=0, vmax=255) 
-    #     # index += 1
-
     ready_images = [] 
     for image in imgs_rotated:
         ready_images.append( cut_white_block( check_orient( cut_background(image) ) ) )  # check_orient + cut_background + cut_white_block w jednej pętli
@@ -262,7 +236,7 @@ if __name__ == "__main__":
             similars.append((index2, sim))
                         
         similars.sort(key=lambda x: x[1], reverse=True)
-        
+
         # string_for_file = str(index)+" :"
         string = ""
         for i in similars:
