@@ -192,8 +192,10 @@ if __name__ == "__main__":
     pixelContours = []
 
     for image in images:
-        pixelContours.append(simple_find_contours(image)) # dodaj cały kontur (ciąg pixeli) danego obrazka do listy konturów
-
+        try:
+            pixelContours.append(simple_find_contours(image)) # dodaj cały kontur (ciąg pixeli) danego obrazka do listy konturów
+        except:
+            pixelContours.append(image)
     # for index, image in enumerate(images):
     #     for r, line in enumerate(contursMaps[index]):
     #         for c, _ in enumerate(line):
@@ -218,7 +220,10 @@ if __name__ == "__main__":
     # index = 0
     imgs_rotated = []
     for image, contursMap in zip(images, contursMaps):
-        imgs_rotated.append(hough_rotate_image(image, contursMap))
+        try:
+            imgs_rotated.append(hough_rotate_image(image, contursMap))
+        except:
+            imgs_rotated.append(image)
     # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
     # index = 0
     # imgs_fliped = []
@@ -243,13 +248,27 @@ if __name__ == "__main__":
         # axs[math.floor(index / 2),index % 2].imshow(ready_images[-1], cmap='gray', vmin=0, vmax=255) 
         # index += 1
 
-    imgs_fliped = [] 
+
+    removed_background = []
     for image in imgs_rotated:
-        imgs_fliped.append(( check_orient( cut_background(image) ) ) )  # check_orient + cut_background +  w jednej pętli
+        try:
+            removed_background.append(cut_background(image))
+        except:
+            removed_background.append(image)
+
+    imgs_fliped = [] 
+    for image in removed_background:
+        try:
+            imgs_fliped.append(check_orient(image))  
+        except:
+            imgs_fliped.append(image) 
 
     ready_images = []
     for image in imgs_fliped:
-        ready_images.append(cut_white_block(image))
+        try:
+            ready_images.append(cut_white_block(image))
+        except:
+            ready_images.append(image)
 
     minHeight, minWidth = ready_images[0].shape
     for image in ready_images:
