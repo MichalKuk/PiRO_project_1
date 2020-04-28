@@ -49,7 +49,65 @@ def check_orient(image):
     return image
 
 
+def cut_background(image):
+    
+    upIndex = 0
+    leftIndex = 0
+    rightIndex = 0
+    downIndex = 0
+    
+    for ind, row in enumerate(image):
+        if any(row) > 0:
+            upIndex = ind
+            break
+            
+    for ind, column in enumerate(image.T):
+        if any(column) > 0:
+            leftIndex = ind
+            break  
+            
+    for ind, row in enumerate(np.flip(image)):
+        if any(row) > 0:
+            downIndex = ind
+            break
+            
+    for ind, column in enumerate(np.flip(image.T)):
+        if any(column) > 0:
+            rightIndex = ind
+            break     
+            
+    newImage = image[upIndex:image.shape[0] - downIndex]
+    
+    newImage = np.delete(newImage, np.s_[newImage.shape[1] - rightIndex:newImage.shape[1]], 1) #column
+    newImage = np.delete(newImage, np.s_[0:leftIndex], 1)
 
+    return newImage
+
+
+def cut_white_block(image):
+
+    downIndex = 0
+    height, width = image.shape
+    accuracy = 0.02
+
+    for ind, row in enumerate(np.flip(image)):
+        left = int(width*accuracy)
+        right = int(width-(width*accuracy))
+        if all(row[left:right]) > 0: # wszystkie pixele w wierszu nie są czarne (są białe)
+            downIndex = ind
+            break
+
+    newImage = image[height - downIndex:]
+    
+    return newImage
+
+
+def calculate_similarity(image1, image2):
+    number_of_equal_elements = np.sum(image1==image2)
+    total_elements = image1.shape[0] * image1.shape[1]
+    percentage = number_of_equal_elements/total_elements
+    
+    return percentage
 
 
 
@@ -72,28 +130,28 @@ images = [img for _, img in images] # zostawia images bez indeksów
 # numpyImages = []
 # for image in images:
 #     numpyImages.append(np.array(image))
-
-
+# 
 # contours = []
 # for image in images:    
 #     contours.append(find_contours(image,0.5))
-
+# 
 # contours_floors = []
 # for cont in contours:
 #     contours_floors.append([(r,c) for r,c in np.floor(cont[0])])
 
 contours = []
+contursMaps = []
 for image in images:    
     contours.append([(r,c) for r,c in np.floor(find_contours(image,0.5)[0])]) 
-
-contursMaps = []
-for image in images:
     contursMaps.append(np.zeros(image.shape, dtype="uint8"))
+
+# contursMaps = []
+# for image in images:
+#     contursMaps.append(np.zeros(image.shape, dtype="uint8"))
 
 
 pixelContours = []
 neighborhood = [(-1,-1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-
 for image in images:
     pixC = []
     for row, line in enumerate(image):
@@ -114,11 +172,11 @@ for image in images:
 #     for r, line in enumerate(contursMaps[index]):
 #         for c, _ in enumerate(line):
 #             if((r,c) in pixelContours[index]):
-#                 contursMaps[index][r,c] = 1
-                
+#                 contursMaps[index][r,c] = 1         
 for img_id, contour in enumerate(pixelContours): #kontur jednego obrazka
     for contour_pixel in contour: #jeden pixel (x,y) w konturze
         contursMaps[img_id][contour_pixel[0]][contour_pixel[1]] = 1 # zamaluj na biało pixel odpowiadający pixelowi konturu
+
 
 # RYSOWANIE
 # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
@@ -133,11 +191,8 @@ for img_id, contour in enumerate(pixelContours): #kontur jednego obrazka
 from scipy import ndimage
 # index = 0
 imgs_rotated = []
-
 for image, contursMap in zip(images, contursMaps):
-    
     angles = []
-    
     lines = cv2.HoughLinesP(contursMap, 1, math.pi / 180.0, 50, minLineLength=50, maxLineGap=5)
     for x1, y1, x2, y2 in lines[0]:
         cv2.line(contursMap, (x1, y1), (x2, y2), (255, 0, 0), 3)
@@ -151,13 +206,66 @@ for image, contursMap in zip(images, contursMaps):
     # index += 1
 
 
+# fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
+# index = 0
+# imgs_fliped = []
+# for image in imgs_rotated:
+#     imgs_fliped.append(check_orient(image))   
+    # axs[math.floor(index / 2),index % 2].imshow(imgs_fliped[-1], cmap='gray', vmin=0, vmax=255) 
+    # index += 1 
 
 # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
 # index = 0
-
-imgs_fliped = []
-
-for image in imgs_rotated:
-    imgs_fliped.append(check_orient(image))   
-    # axs[math.floor(index / 2),index % 2].imshow(imgs_fliped[-1], cmap='gray', vmin=0, vmax=255) 
+# cutted_images = []
+# for image in imgs_fliped:
+#     cutted_images.append(cut_background(image))
+    # axs[math.floor(index / 2),index % 2].imshow(cutted_images[-1], cmap='gray', vmin=0, vmax=255) 
     # index += 1 
+
+# fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
+# index = 0
+# ready_images = []
+# for image in cut_images:
+#     ready_images.append(cut_white_block(image))     
+    # axs[math.floor(index / 2),index % 2].imshow(ready_images[-1], cmap='gray', vmin=0, vmax=255) 
+    # index += 1
+
+ready_images = [] 
+for image in imgs_rotated:
+    ready_images.append( cut_white_block( cut_background( check_orient(image) ) ) )  # check_orient + cut_background + cut_white_block w jednej pętli
+
+
+minHeight, minWidth = ready_images[0].shape
+for image in ready_images:
+    h,w = image.shape
+    if h < minHeight:
+        minHeight = h 
+    if w < minWidth:
+        minWidth = w
+
+resized_images = []
+for image in ready_images:
+    resized_images.append(cv2.resize(image, dsize=(minWidth, minHeight), interpolation=cv2.INTER_CUBIC))
+
+# RYSOWANIE
+# fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
+# index = 0
+# for image in resized_images:
+#     axs[math.floor(index / 2),index % 2].imshow(image, cmap='gray', vmin=0, vmax=255) 
+#     index += 1 
+
+
+for index, image in enumerate(resized_images):
+    similars = []
+    for index2, image2 in enumerate(resized_images):
+        if index == index2:
+            continue
+        sim = calculate_similarity(np.flip(255 - image),image2)
+        similars.append((index2, sim))
+                       
+    similars.sort(key=lambda x: x[1], reverse=True)
+    # string = str(index)+" :"
+    string = ""
+    for i in similars:
+        string += " "+str(i[0])
+    print(string)
