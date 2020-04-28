@@ -142,7 +142,7 @@ images = [img for _, img in images] # zostawia images bez indeksów
 contours = []
 contursMaps = []
 for image in images:    
-    contours.append([(r,c) for r,c in np.floor(find_contours(image,0.5)[0])]) 
+    #contours.append([(r,c) for r,c in np.floor(find_contours(image,0.5)[0])])  <- to jest gotowa funkcja znajdująca kontury, ale w naszym przypadku działa gorzej niż podejście z sprawdzaniem sąsiadów
     contursMaps.append(np.zeros(image.shape, dtype="uint8"))
 
 # contursMaps = []
@@ -232,7 +232,7 @@ for image, contursMap in zip(images, contursMaps):
 
 ready_images = [] 
 for image in imgs_rotated:
-    ready_images.append( cut_white_block( cut_background( check_orient(image) ) ) )  # check_orient + cut_background + cut_white_block w jednej pętli
+    ready_images.append( cut_white_block( check_orient( cut_background(image) ) ) )  # check_orient + cut_background + cut_white_block w jednej pętli
 
 
 minHeight, minWidth = ready_images[0].shape
