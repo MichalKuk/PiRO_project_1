@@ -164,9 +164,9 @@ def hough_rotate_image(image, contursMap):
 if __name__ == "__main__":
     images = []
 
-    for i in range(sys.argv[2]): 
+    for i in range(int(sys.argv[2])): 
         # path = Path(str(sys.argv[1])+'\\'+str(i)+'.png)
-        path = os.path.join(str(sys.argv[1]), str(i), '.png')
+        path = os.path.join(str(sys.argv[1]), str(i) + '.png')
         image = io.imread(path, as_gray=True)
         images.append((int(i), image)) 
 
@@ -224,6 +224,9 @@ if __name__ == "__main__":
             imgs_rotated.append(hough_rotate_image(image, contursMap))
         except:
             imgs_rotated.append(image)
+
+    del contursMaps
+    del images
     # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
     # index = 0
     # imgs_fliped = []
@@ -255,6 +258,8 @@ if __name__ == "__main__":
             removed_background.append(cut_background(image))
         except:
             removed_background.append(image)
+    del imgs_rotated
+
 
     imgs_fliped = [] 
     for image in removed_background:
@@ -262,6 +267,7 @@ if __name__ == "__main__":
             imgs_fliped.append(check_orient(image))  
         except:
             imgs_fliped.append(image) 
+    del removed_background
 
     ready_images = []
     for image in imgs_fliped:
@@ -288,6 +294,9 @@ if __name__ == "__main__":
             resized_images.append(cv2.resize(image, dsize=(minWidth, minHeight), interpolation=cv2.INTER_CUBIC))
         else:
             resized_images.append(cv2.resize(imgs_fliped[index], dsize=(minWidth, minHeight), interpolation=cv2.INTER_CUBIC))
+
+    del ready_images
+    del imgs_fliped
 
     # RYSOWANIE
     # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
