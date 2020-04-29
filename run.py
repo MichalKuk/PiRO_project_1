@@ -5,10 +5,7 @@ from skimage.transform import resize
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-import pprint as pp
-import imutils
 import cv2
-from skimage.measure import find_contours
 import os
 import sys
 
@@ -271,7 +268,9 @@ if __name__ == "__main__":
         if h >= minHeight and w >= minWidth:
             resized_images.append(cv2.resize(image, dsize=(minWidth, minHeight), interpolation=cv2.INTER_CUBIC))
         else:
-            resized_images.append(cv2.resize(imgs_fliped[index], dsize=(minWidth, minHeight), interpolation=cv2.INTER_CUBIC))
+            zeros = np.zeros(imgs_fliped[index].shape, dtype="uint8")
+            concatenated = np.concatenate((imgs_fliped[index], zeros))
+            resized_images.append(cv2.resize(concatenated, dsize=(minWidth, minHeight), interpolation=cv2.INTER_CUBIC))
 
     del ready_images
     del imgs_fliped
