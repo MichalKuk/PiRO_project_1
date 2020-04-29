@@ -1,5 +1,4 @@
-from scipy import misc, ndimage
-import glob
+from scipy import ndimage
 from skimage import io
 from skimage.transform import resize
 import math
@@ -160,9 +159,6 @@ def hough_rotate_image(image, contursMap):
 if __name__ == "__main__":
     images = []
 
-    # path = os.path.abspath(sys.argv[1])
-    # print(path)
-
     for i in range(int(sys.argv[2])): 
         # path = Path(str(sys.argv[1])+'\\'+str(i)+'.png)
         p = os.path.abspath(sys.argv[1])
@@ -275,7 +271,7 @@ if __name__ == "__main__":
     del ready_images
     del imgs_fliped
     # RYSOWANIE
-    # fig, axs = plt.subplots(int(len(images)/2),2, figsize=(12,12))
+    # fig, axs = plt.subplots(int(len(resized_images)/2),2, figsize=(12,12))
     # index = 0
     # for image in resized_images:
     #     axs[math.floor(index / 2),index % 2].imshow(image, cmap='gray', vmin=0, vmax=255) 
