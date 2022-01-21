@@ -1,0 +1,1 @@
+Mamy potencjalnie wiele prostokątów. Każdy jest inny, tzn. wymiary boków są różne (w praktyce są losowane). Każdy prostokąt jest „cięty” w losowy sposób na dwa fragmenty. Następnie wszystkie fragmenty są wymieszane. Twoim zadaniem jest znalezienie par które do siebie pasują.
